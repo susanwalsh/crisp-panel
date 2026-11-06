@@ -1,0 +1,1084 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Crisp Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: a red crisp-packet hero torn open onto a paper scorecard – register, notes, entries, verdict – with a blue podium bar fixed to the bottom edge. */
+:root {
+  --red: #E2041E;
+  --red-text: #C8031B;
+  --blue: #024E91;
+  --yellow: #FFD100;
+  --paper: #F3F5F9;
+  --card: #FFFFFF;
+  --ink: #1C1C1C;
+  --muted: #545B68;
+  --rule: #D7DCE5;
+  --heading: #024E91;
+  --gold: #FFD100;
+  --silver: #BCC4D0;
+  --bronze: #D08B52;
+  --on-medal: #141414;
+  --on-red: #FFFFFF;
+  --bar-bg: #024E91;
+  --bar-fg: #FFFFFF;
+  --bar-muted: #B9CCE4;
+  --alert: #A8031A;
+  --alert-bg: #FDE8EA;
+  --focus: #2A4EEF;
+
+  --display: "Jost", "Futura", "Century Gothic", "Avenir Next", system-ui, sans-serif;
+  --body: "Jost", "Futura", "Avenir Next", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --radius: 16px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --red-text: #FF7A88; --paper: #08172C; --card: #0F2747; --ink: #EEF2F8; --muted: #A9B8CF; --rule: #24426B;
+    --heading: #FFFFFF; --silver: #C9D0DB; --bronze: #DE9A63;
+    --bar-bg: #023D73; --bar-muted: #A9C0DD;
+    --alert: #FFB3BC; --alert-bg: #3B0F18; --focus: #8FB0FF;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --red-text: #FF7A88; --paper: #08172C; --card: #0F2747; --ink: #EEF2F8; --muted: #A9B8CF; --rule: #24426B;
+  --heading: #FFFFFF; --silver: #C9D0DB; --bronze: #DE9A63;
+  --bar-bg: #023D73; --bar-muted: #A9C0DD;
+  --alert: #FFB3BC; --alert-bg: #3B0F18; --focus: #8FB0FF;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 400 1.0625rem/1.55 var(--body);
+  overflow-x: clip;
+}
+body.has-bar { padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px)); }
+.wrap, .hero-inner {
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: calc(42rem + 32px); margin: 0 auto; padding-block: 8px 48px; display: grid; gap: 44px; }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+p { margin: 0; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.hero :focus-visible { outline-color: #FFFFFF; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.eyebrow {
+  font: 500 0.8rem/1.2 var(--display);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--red-text);
+}
+
+/* Hero: the packet */
+.hero { background: var(--red); color: var(--on-red); position: relative; }
+.hero-inner { max-width: calc(42rem + 32px); margin: 0 auto; padding-block: 24px 28px; display: grid; gap: 20px; }
+.preview {
+  border: 1.5px dashed rgba(255, 255, 255, 0.7);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 0.92rem;
+  color: var(--on-red);
+}
+.preview strong { color: var(--on-red); }
+.masthead { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px 18px; align-items: center; }
+.masthead h1 {
+  font: 800 clamp(2.9rem, 12vw, 5rem)/0.92 var(--display);
+  letter-spacing: -0.02em;
+  color: var(--on-red);
+}
+.seal { width: 124px; max-width: 30vw; aspect-ratio: 1; }
+.seal svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.seal .ring { fill: var(--on-red); font: 500 9.5px var(--display); letter-spacing: 0.18em; text-transform: uppercase; transform-origin: 60px 60px; }
+.seal .disc { fill: var(--yellow); }
+.seal .num { fill: var(--on-medal); font: 800 26px var(--display); }
+.seal .lbl { fill: var(--on-medal); font: 600 7.5px var(--display); letter-spacing: 0.16em; }
+.lede { grid-column: 1 / -1; display: grid; gap: 10px; max-width: 36rem; }
+.lede p { color: var(--on-red); }
+.lede p:first-child { font: 600 1.35rem/1.3 var(--display); }
+.tear {
+  height: 26px;
+  margin-top: -1px;
+  background: var(--paper);
+  clip-path: polygon(0% 100%, 0.0% 37.7%, 1.67% 25.6%, 3.33% 60.6%, 5.0% 20.1%, 6.67% 52.5%, 8.33% 40.6%, 10.0% 19.1%, 11.67% 50.5%, 13.33% 17.6%, 15.0% 45.4%, 16.67% 19.9%, 18.33% 21.3%, 20.0% 44.7%, 21.67% 72.9%, 23.33% 23.7%, 25.0% 30.6%, 26.67% 58.9%, 28.33% 81.3%, 30.0% 55.4%, 31.67% 42.8%, 33.33% 83.3%, 35.0% 18.3%, 36.67% 75.1%, 38.33% 35.3%, 40.0% 25.1%, 41.67% 23.2%, 43.33% 36.6%, 45.0% 72.1%, 46.67% 27.7%, 48.33% 55.7%, 50.0% 59.7%, 51.67% 41.1%, 53.33% 53.3%, 55.0% 19.4%, 56.67% 19.2%, 58.33% 29.4%, 60.0% 62.6%, 61.67% 44.9%, 63.33% 37.0%, 65.0% 56.0%, 66.67% 46.7%, 68.33% 36.0%, 70.0% 70.6%, 71.67% 63.9%, 73.33% 32.1%, 75.0% 55.2%, 76.67% 51.8%, 78.33% 76.3%, 80.0% 66.1%, 81.67% 35.2%, 83.33% 83.6%, 85.0% 23.3%, 86.67% 44.3%, 88.33% 68.0%, 90.0% 25.6%, 91.67% 49.2%, 93.33% 17.7%, 95.0% 61.8%, 96.67% 68.5%, 98.33% 55.1%, 100.0% 76.3%, 100% 100%);
+  position: relative;
+  top: 1px;
+}
+
+/* Sections */
+.section { display: grid; gap: 16px; }
+.section-head { display: grid; gap: 6px; }
+.section-head h2 {
+  font: 800 1.7rem/1.1 var(--display);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--heading);
+  display: flex; gap: 12px; align-items: baseline;
+}
+.step {
+  font: 800 1rem/1 var(--display);
+  color: var(--on-medal);
+  background: var(--yellow);
+  width: 1.9rem; height: 1.9rem; border-radius: 50%;
+  display: inline-grid; place-items: center; flex: none;
+  transform: translateY(-3px);
+}
+.hint { color: var(--muted); font-size: 0.98rem; }
+
+/* Fields */
+label.field-label { font-weight: 600; }
+.field { display: grid; gap: 6px; }
+input[type="text"], input[type="password"], textarea {
+  font: inherit; color: var(--ink);
+  background: var(--card);
+  border: 2px solid var(--rule);
+  border-radius: 12px;
+  padding: 12px 14px;
+  width: 100%;
+}
+input[type="text"]:focus-visible, input[type="password"]:focus-visible, textarea:focus-visible { border-color: var(--focus); outline-offset: 0; }
+textarea { min-height: 110px; resize: vertical; }
+.field[data-invalid] input { border-color: var(--alert); }
+.error { color: var(--alert); font-weight: 600; font-size: 0.98rem; }
+
+/* Notices */
+.diet {
+  background: var(--blue);
+  color: #FFFFFF;
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  display: grid; gap: 8px;
+}
+.diet h2 { font: 800 1.1rem/1.2 var(--display); text-transform: uppercase; letter-spacing: 0.04em; color: #FFFFFF; }
+.diet p, .diet strong { color: #FFFFFF; }
+.diet strong { text-decoration: underline; text-decoration-color: var(--yellow); text-decoration-thickness: 3px; text-underline-offset: 4px; }
+
+.notes { display: grid; gap: 12px; }
+.notes ul { list-style: none; margin: 0; padding: 0; display: grid; border-top: 1px solid var(--rule); }
+.notes li { padding: 11px 0; border-bottom: 1px solid var(--rule); display: grid; grid-template-columns: 1.5rem minmax(0, 1fr); align-items: baseline; }
+.notes li::before { content: ""; width: 9px; height: 9px; background: var(--red); border-radius: 2px; transform: rotate(45deg) translateY(-2px); }
+
+/* Entries */
+.entries { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.entry {
+  background: var(--card);
+  border: 2px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  display: grid; gap: 12px;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+.entry[data-award="first"]  { border-color: var(--gold);   box-shadow: inset 0 0 0 2px var(--gold); }
+.entry[data-award="second"] { border-color: var(--silver); box-shadow: inset 0 0 0 2px var(--silver); }
+.entry[data-award="third"]  { border-color: var(--bronze); box-shadow: inset 0 0 0 2px var(--bronze); }
+.entry-head { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 12px; align-items: baseline; }
+.lot { font: 700 0.85rem/1.4 var(--display); color: var(--muted); font-variant-numeric: tabular-nums; letter-spacing: 0.06em; }
+.entry h3 { min-width: 0; }
+.brand { display: block; font: 600 0.78rem/1.3 var(--display); letter-spacing: 0.2em; text-transform: uppercase; color: var(--red-text); }
+.flavour { display: block; font: 700 1.25rem/1.2 var(--display); color: var(--heading); }
+.flag {
+  grid-column: 2;
+  justify-self: start;
+  margin-top: 6px;
+  background: var(--alert-bg); color: var(--alert);
+  border-radius: 6px; padding: 3px 8px;
+  font-size: 0.88rem; font-weight: 600;
+}
+.ingredients {
+  grid-column: 2; justify-self: start; margin-top: 4px;
+  font-size: 0.92rem; font-weight: 500; color: var(--heading);
+  text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px;
+}
+.ingredients::after { content: " ↗"; text-decoration: none; display: inline-block; margin-left: 2px; }
+.ingredients:hover { color: var(--red-text); }
+.flag.note { background: var(--card); color: var(--muted); border: 1.5px solid var(--rule); }
+.award-tag { grid-column: 2; font: 600 0.75rem/1.4 var(--display); letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+
+.medals { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+@media (min-width: 600px) {
+  .entry { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+  .medals { grid-template-columns: repeat(3, 4.8rem); }
+}
+.medal {
+  --m: var(--gold);
+  min-height: 44px;
+  border: 2px solid var(--rule);
+  background: var(--card); color: var(--ink);
+  border-radius: 999px;
+  font: 700 0.95rem/1 var(--display);
+  letter-spacing: 0.04em;
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease, transform 120ms ease;
+}
+.medal[data-place="second"] { --m: var(--silver); }
+.medal[data-place="third"]  { --m: var(--bronze); }
+.medal::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--m); flex: none; }
+.medal:hover { border-color: var(--m); }
+.medal:active { transform: scale(0.96); }
+.medal[aria-pressed="true"] { background: var(--m); border-color: var(--m); color: var(--on-medal); }
+.medal[aria-pressed="true"]::before { background: var(--on-medal); }
+
+/* Verdict */
+.podium-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.podium-list li {
+  display: grid; grid-template-columns: 3.3rem minmax(0, 1fr); gap: 12px; align-items: center;
+  background: var(--card); border: 2px solid var(--rule); border-radius: 12px; padding: 10px 12px;
+}
+.place-chip {
+  justify-self: start;
+  font: 700 0.85rem/1 var(--display); color: var(--on-medal); letter-spacing: 0.04em;
+  background: var(--m, var(--gold)); border-radius: 999px; padding: 6px 10px;
+}
+.podium-list .empty { color: var(--muted); font-style: italic; }
+.podium-list .crisp-name { font-weight: 600; min-width: 0; }
+.notice { border-radius: 12px; padding: 12px 14px; display: grid; gap: 10px; }
+.notice.warn { background: var(--alert-bg); color: var(--alert); }
+.notice.warn p { color: var(--ink); }
+.notice.info { background: var(--card); border: 2px solid var(--rule); }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+.btn {
+  font: 600 0.95rem/1 var(--display);
+  letter-spacing: 0.16em; text-transform: uppercase;
+  min-height: 52px; padding: 0 28px;
+  border-radius: 999px; border: 2px solid var(--yellow);
+  background: var(--yellow); color: var(--on-medal);
+  cursor: pointer;
+  transition: transform 120ms ease, filter 120ms ease;
+}
+.btn:hover { filter: brightness(1.05); }
+.btn:active { transform: scale(0.98); }
+.btn.secondary { background: transparent; color: var(--heading); border-color: var(--heading); }
+.btn.small { min-height: 42px; padding: 0 18px; font-size: 0.8rem; }
+.btn[disabled] { opacity: 0.55; cursor: progress; }
+.linkish { font: inherit; background: none; border: 0; padding: 0; color: var(--heading); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+/* Podium bar */
+.bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 5;
+  background: var(--bar-bg); color: var(--bar-fg);
+  padding-top: 10px;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.bar-inner { max-width: 42rem; margin: 0 auto; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; gap: 10px; align-items: center; }
+.slot { min-width: 0; display: grid; gap: 3px; }
+.slot-label { font: 600 0.68rem/1 var(--display); letter-spacing: 0.14em; color: var(--bar-muted); display: flex; align-items: center; gap: 5px; }
+.slot-label::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--m); }
+.slot-name { font-size: 0.88rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.slot-name.empty { color: var(--bar-muted); font-weight: 400; }
+.bar .btn { background: #FFFFFF; border-color: #FFFFFF; color: var(--blue); min-height: 44px; padding: 0 16px; font-size: 0.78rem; letter-spacing: 0.12em; }
+.bar .btn.ready { background: var(--yellow); border-color: var(--yellow); color: var(--on-medal); }
+
+/* Recorded */
+.recorded { display: grid; gap: 20px; justify-items: start; }
+.stamp {
+  font: 800 clamp(2.2rem, 9vw, 3.4rem)/1 var(--display);
+  text-transform: uppercase;
+  color: var(--heading);
+  display: flex; align-items: center; gap: 14px;
+}
+.stamp-mark {
+  width: 60px; height: 60px; border-radius: 50%; flex: none;
+  background: var(--yellow); color: var(--on-medal);
+  display: grid; place-items: center;
+}
+.recorded .podium-list { width: 100%; }
+
+/* Results */
+.meter { height: 12px; border-radius: 999px; background: var(--rule); overflow: hidden; }
+.meter span { display: block; height: 100%; background: var(--red); border-radius: inherit; }
+.stats { display: grid; gap: 8px; }
+.stats p { font-variant-numeric: tabular-nums; }
+.stats strong { font: 800 1.6rem/1 var(--display); color: var(--heading); }
+
+.top3 { display: grid; gap: 10px; }
+.top-card {
+  --m: var(--gold);
+  border-radius: var(--radius); padding: 14px 16px;
+  background: var(--card); border: 2px solid var(--m); box-shadow: inset 0 0 0 2px var(--m);
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 14px; align-items: center;
+}
+.top-card .place-chip { font-size: 0.92rem; padding: 8px 12px; }
+.top-card .names { font: 700 1.15rem/1.25 var(--display); color: var(--heading); min-width: 0; display: grid; gap: 6px; }
+.top-card .names small { display: block; font: 400 0.92rem/1.4 var(--body); color: var(--muted); }
+.top-card .pts { font: 800 1.9rem/1 var(--display); font-variant-numeric: tabular-nums; text-align: right; color: var(--heading); }
+.top-card .pts small { display: block; font: 600 0.68rem/1.2 var(--display); color: var(--muted); letter-spacing: 0.16em; }
+
+.ranking { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
+.ranking li { padding: 12px 0; border-bottom: 1px solid var(--rule); display: grid; grid-template-columns: 3.2rem minmax(0, 1fr) auto; gap: 4px 12px; align-items: baseline; }
+.rank { font: 700 1rem/1.3 var(--display); font-variant-numeric: tabular-nums; color: var(--red-text); }
+.r-name { font-weight: 600; min-width: 0; }
+.r-name .tie { margin-left: 6px; font: 700 0.68rem/1 var(--display); letter-spacing: 0.14em; text-transform: uppercase; color: var(--on-medal); background: var(--yellow); border-radius: 4px; padding: 3px 6px; vertical-align: 2px; }
+.r-pts { font: 700 1.1rem/1.3 var(--display); font-variant-numeric: tabular-nums; text-align: right; color: var(--heading); }
+.r-detail { grid-column: 2 / -1; color: var(--muted); font-size: 0.9rem; font-variant-numeric: tabular-nums; }
+.r-bar { grid-column: 2 / -1; height: 7px; border-radius: 999px; background: var(--rule); overflow: hidden; }
+.r-bar span { display: block; height: 100%; background: var(--red); }
+.defences { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.defences li { background: var(--card); border: 2px solid var(--rule); border-radius: 12px; padding: 12px 14px; display: grid; gap: 6px; }
+.defences .who { color: var(--muted); font-size: 0.92rem; }
+.voters { color: var(--muted); }
+
+.footer { border-top: 1px solid var(--rule); padding-top: 20px; color: var(--muted); font-size: 0.92rem; display: flex; flex-wrap: wrap; gap: 8px 16px; justify-content: space-between; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .seal .ring { animation: spin 40s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .stamp-mark { animation: stamp 420ms cubic-bezier(.2, 1.6, .4, 1) both; }
+  @keyframes stamp { from { transform: scale(0.4) rotate(-30deg); opacity: 0; } to { transform: none; opacity: 1; } }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <p class="preview" id="preview" hidden>
+      <strong>Preview mode.</strong> Votes are saved on this device only. Once published through Google Apps Script, everyone’s votes go to one shared sheet. Organiser code for this preview: <strong>crisps</strong>.
+    </p>
+    <div class="masthead">
+      <h1>The Crisp Panel.</h1>
+      <div class="seal" aria-hidden="true">
+        <svg viewBox="0 0 120 120">
+          <defs><path id="seal-path" d="M60,60 m-50,0 a50,50 0 1,1 100,0 a50,50 0 1,1 -100,0"/></defs>
+          <g class="ring"><text><textPath href="#seal-path" textLength="308" lengthAdjust="spacing">Official tasting · Panel of 23 · Judging is final · </textPath></text></g>
+          <circle class="disc" cx="60" cy="60" r="34"/>
+          <text class="num" x="60" y="64" text-anchor="middle">23</text>
+          <text class="lbl" x="60" y="77" text-anchor="middle">JUDGES</text>
+        </svg>
+      </div>
+      <div class="lede">
+        <p>Eleven crisps. Twenty-three judges. Three medals each.</p>
+        <p>Taste as many as you like, then award gold, silver and bronze. Gold earns a crisp 3 points, silver 2 and bronze 1. The panel’s decision is final. The crumbs are inevitable.</p>
+      </div>
+    </div>
+  </div>
+  <div class="tear" aria-hidden="true"></div>
+</header>
+
+<div class="wrap">
+
+  <!-- Checking -->
+  <p id="view-checking" class="hint">Checking the register…</p>
+
+  <!-- Voting form -->
+  <form id="view-form" novalidate hidden>
+    <div class="wrap" style="padding:0">
+
+      <section class="section" aria-labelledby="h-name">
+        <div class="section-head">
+          <h2 id="h-name"><span class="step" aria-hidden="true">1</span> Sign the register</h2>
+        </div>
+        <div class="field" id="name-field">
+          <label class="field-label" for="voter-name">Your name</label>
+          <input type="text" id="voter-name" name="voter-name" autocomplete="name" maxlength="60" aria-describedby="name-error">
+          <p class="error" id="name-error" hidden>Add your name so the organiser can count your vote.</p>
+        </div>
+      </section>
+
+      <aside class="diet" aria-labelledby="h-diet">
+        <h2 id="h-diet">Check before you taste</h2>
+        <p>Most of the line-up is labelled vegan. <strong>Pipers Burrow Hill Cider Vinegar &amp; Sea Salt contains milk</strong>, so it isn’t suitable for vegans. Tyrrells Lentil Sweet Chilli &amp; Red Pepper is labelled vegetarian but not vegan.</p>
+        <p>Some packets say they may contain soya, gluten, tree nuts or peanuts. Check the packet or tap <strong>Ingredients</strong> on any crisp before you taste.</p>
+      </aside>
+
+      <section class="notes" aria-labelledby="h-notes">
+        <div class="section-head">
+          <h2 id="h-notes" style="font:800 1.2rem/1.2 var(--display);text-transform:uppercase;letter-spacing:0.04em;color:var(--heading)">While you taste</h2>
+          <p class="hint">Prompts to think about. You don’t need to answer them.</p>
+        </div>
+        <ul>
+          <li>First bite and flavour</li>
+          <li>Crunch and texture</li>
+          <li>Crisp dust and quiet-meeting potential</li>
+          <li>Does the packet deliver what it promises?</li>
+          <li>Lick-your-fingers factor</li>
+          <li>Can you stop at just one?</li>
+          <li>Would you buy it again?</li>
+        </ul>
+      </section>
+
+      <section class="section" aria-labelledby="h-entries">
+        <div class="section-head">
+          <h2 id="h-entries"><span class="step" aria-hidden="true">2</span> Award your medals</h2>
+          <p class="hint">Choose a different crisp for 1st, 2nd and 3rd. Tap a medal again to take it back. You don’t have to taste every crisp.</p>
+        </div>
+        <ol class="entries" id="entries"></ol>
+      </section>
+
+      <section class="section" id="verdict" aria-labelledby="h-verdict" tabindex="-1">
+        <div class="section-head">
+          <h2 id="h-verdict"><span class="step" aria-hidden="true">3</span> Your verdict</h2>
+        </div>
+        <div class="notice info" id="replace-note" hidden>
+          <p>You’re changing your vote. Submitting this replaces the one you sent earlier.</p>
+        </div>
+        <ol class="podium-list" id="verdict-podium" aria-label="Your podium"></ol>
+        <p class="error" id="picks-error" hidden>Award all three medals before you submit.</p>
+        <div class="field">
+          <label class="field-label" for="defence">Which crisp would you defend in a design review, and why?</label>
+          <textarea id="defence" name="defence" maxlength="600" aria-describedby="defence-hint"></textarea>
+          <p class="hint" id="defence-hint">Optional. The organiser may read these out.</p>
+        </div>
+
+        <div class="notice warn" id="dup-note" hidden>
+          <strong>You’ve already voted</strong>
+          <p id="dup-text"></p>
+          <div class="actions">
+            <button type="button" class="btn small" id="dup-replace">Replace it with this vote</button>
+            <button type="button" class="btn small secondary" id="dup-keep">Keep my first vote</button>
+          </div>
+        </div>
+        <p class="error" id="submit-error" role="alert" hidden></p>
+        <div class="actions">
+          <button type="submit" class="btn" id="submit-btn">Submit vote</button>
+        </div>
+      </section>
+    </div>
+  </form>
+
+  <!-- Recorded -->
+  <section id="view-recorded" class="recorded" hidden aria-labelledby="h-recorded" tabindex="-1">
+    <p class="eyebrow" id="recorded-eyebrow">Vote recorded</p>
+    <h2 class="stamp" id="h-recorded">
+      <span class="stamp-mark" aria-hidden="true">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+      </span>
+      <span id="recorded-title">The panel has your verdict</span>
+    </h2>
+    <p id="recorded-meta" class="hint"></p>
+    <ol class="podium-list" id="recorded-podium" aria-label="Your podium"></ol>
+    <p class="hint">Results are revealed by the organiser once the panel has finished.</p>
+    <div class="actions">
+      <button type="button" class="btn secondary" id="change-vote">Change my vote</button>
+    </div>
+  </section>
+
+  <!-- Results -->
+  <section id="view-results" class="section" hidden aria-labelledby="h-results" tabindex="-1">
+    <div class="section-head">
+      <p class="eyebrow">Organiser only</p>
+      <h2 id="h-results" style="font:800 2.2rem/1 var(--display);text-transform:uppercase;color:var(--heading)">Panel results</h2>
+    </div>
+
+    <form id="code-form" class="field" novalidate>
+      <label class="field-label" for="organiser-code">Organiser code</label>
+      <div class="actions" style="flex-wrap:nowrap">
+        <input type="password" id="organiser-code" autocomplete="off" aria-describedby="code-error" style="flex:1;min-width:0">
+        <button type="submit" class="btn" id="code-btn">Open</button>
+      </div>
+      <p class="error" id="code-error" role="alert" hidden>That code isn’t right. Check with whoever set up the panel.</p>
+    </form>
+
+    <div id="results-body" class="section" hidden>
+      <div class="notice warn" id="default-code-note" hidden><p>The organiser code is still the default. Change <code>ORGANISER_CODE</code> in Code.gs and redeploy before you share the link.</p></div>
+      <div class="stats">
+        <p><strong id="vote-count">0</strong> of <span id="vote-expected">23</span> judges have voted</p>
+        <div class="meter" aria-hidden="true"><span id="vote-meter" style="width:0%"></span></div>
+        <div class="actions">
+          <button type="button" class="btn small secondary" id="refresh">Refresh results</button>
+          <span class="hint" id="refreshed"></span>
+        </div>
+      </div>
+      <div class="top3" id="top3" aria-label="Podium"></div>
+      <div class="section">
+        <h3 style="font:800 1.2rem/1.2 var(--display);text-transform:uppercase;letter-spacing:0.04em;color:var(--heading)">Full ranking</h3>
+        <p class="hint">Gold 3 points, silver 2, bronze 1. Crisps on the same points share a rank and are marked as tied. Within a tie, the crisp with more gold votes is listed first.</p>
+        <ol class="ranking" id="ranking"></ol>
+      </div>
+      <div class="section" id="defences-section" hidden>
+        <h3 style="font:800 1.2rem/1.2 var(--display);text-transform:uppercase;letter-spacing:0.04em;color:var(--heading)">Defences for the design review</h3>
+        <ul class="defences" id="defences"></ul>
+      </div>
+      <p class="voters" id="voters"></p>
+      <div class="actions" id="demo-tools" hidden>
+        <button type="button" class="btn small secondary" id="demo-add">Add 15 sample votes</button>
+        <button type="button" class="btn small secondary" id="demo-clear">Clear preview votes</button>
+      </div>
+    </div>
+    <div class="actions"><button type="button" class="linkish" id="back-to-vote">Back to voting</button></div>
+  </section>
+
+  <footer class="footer">
+    <span>The Crisp Panel</span>
+    <button type="button" class="linkish" id="open-results">Organiser: view results</button>
+  </footer>
+</div>
+
+<div class="bar" id="bar" hidden>
+  <div class="bar-inner">
+    <div class="slot" style="--m:var(--gold)"><span class="slot-label">1ST</span><span class="slot-name empty" data-slot="first">–</span></div>
+    <div class="slot" style="--m:var(--silver)"><span class="slot-label">2ND</span><span class="slot-name empty" data-slot="second">–</span></div>
+    <div class="slot" style="--m:var(--bronze)"><span class="slot-label">3RD</span><span class="slot-name empty" data-slot="third">–</span></div>
+    <button type="button" class="btn" id="bar-btn">Review</button>
+  </div>
+</div>
+
+<p class="visually-hidden" id="live" aria-live="polite"></p>
+
+<script>
+(function () {
+  'use strict';
+
+  // Must match VALID_IDS in Code.gs.
+  const LINEUP = [
+    { id: 'blanco-nino', brand: 'Blanco Niño', flavour: 'Chilli & Lime White Corn Tortilla Chips', url: 'https://www.ocado.com/products/blanco-nino-chilli-lime-white-corn-tortilla-chips/557006011' },
+    { id: 'eat-real', brand: 'Eat Real', flavour: 'Sundried Tomato & Roasted Garlic Quinoa Chips', url: 'https://www.ocado.com/products/eat-real-quinoa-chips-sundried-tomato-roasted-garlic-sharing/629778011' },
+    { id: 'hippeas', brand: 'Hippeas', flavour: 'Take It Cheesy Chickpea Puffs', url: 'https://www.ocado.com/products/hippeas-chickpea-puffs-take-it-cheesy/538381011' },
+    { id: 'love-corn-habanero', brand: 'Love Corn', flavour: 'Habanero Crunchy Corn', url: 'https://www.ocado.com/products/love-corn-habanero-crunchy-corn/408948011' },
+    { id: 'filberts-truffle', brand: 'Mr Filbert’s', flavour: 'Black Truffle Potato Crisps', url: 'https://www.ocado.com/products/mr-filbert-s-black-truffle-premium-potato-tapas-crisps/679214011' },
+    { id: 'filberts-padron', brand: 'Mr Filbert’s', flavour: 'Padrón Peppers & Salt Potato Crisps', url: 'https://www.ocado.com/products/mr-filbert-s-padron-peppers-salt-premium-potato-tapas-crisps/679212011' },
+    { id: 'pipers-cider-vinegar', brand: 'Pipers', flavour: 'Burrow Hill Cider Vinegar & Sea Salt', flag: 'Contains milk. Not suitable for vegans.', url: 'https://www.ocado.com/products/pipers-burrow-hill-cider-vinegar-sea-salt-sharing-bag-crisps/467844011' },
+    { id: 'properchips', brand: 'Properchips', flavour: 'Sweet Sriracha Lentil Chips', url: 'https://www.ocado.com/products/properchips-sweet-sriracha-lentil-chips/471844011' },
+    { id: 'simply-roasted', brand: 'Simply Roasted', flavour: 'Mixed Vegetable Crisps Sea Salt', url: 'https://www.ocado.com/products/simply-roasted-mixed-vegetable-crisps-sea-salt/698694011' },
+    { id: 'tyrrells-lentil', brand: 'Tyrrells', flavour: 'Lentil Sweet Chilli & Red Pepper', note: 'Labelled vegetarian, not vegan.', url: 'https://www.ocado.com/products/tyrrells-lentil-sharing-crisps-sweet-chilli-red-pepper/570430011' },
+    { id: 'popchips', brand: 'Popchips', flavour: 'Barbeque', url: 'https://www.ocado.com/products/popchips-barbeque-sharing-crisps/67306011' }
+  ].map(function (c, i) { return Object.assign(c, { lot: i + 1, full: c.brand + ' ' + c.flavour }); });
+  const BY_ID = Object.fromEntries(LINEUP.map(function (c) { return [c.id, c]; }));
+
+  const PLACES = [
+    { key: 'first', label: '1st', medal: 'Gold', points: 3, color: 'var(--gold)' },
+    { key: 'second', label: '2nd', medal: 'Silver', points: 2, color: 'var(--silver)' },
+    { key: 'third', label: '3rd', medal: 'Bronze', points: 1, color: 'var(--bronze)' }
+  ];
+
+  const $ = function (id) { return document.getElementById(id); };
+
+  // ---- Storage (per-device conveniences only) ----
+  function area(session) { return session ? window.sessionStorage : window.localStorage; }
+  const store = {
+    get: function (k, session) { try { const v = area(session).getItem(k); return v ? JSON.parse(v) : null; } catch (e) { return null; } },
+    set: function (k, v, session) { try { area(session).setItem(k, JSON.stringify(v)); } catch (e) { /* not available */ } }
+  };
+  function uid() {
+    try { if (window.crypto && crypto.randomUUID) return crypto.randomUUID(); } catch (e) { /* fall through */ }
+    return 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+  }
+  let deviceId = store.get('crisp-panel-device');
+  if (!deviceId) { deviceId = uid(); store.set('crisp-panel-device', deviceId); }
+
+  // ---- Backend: Apps Script when published, local preview otherwise ----
+  const LIVE = !!(window.google && google.script && google.script.run);
+
+  const DEMO_KEY = 'crisp-panel-preview-votes';
+  const Demo = {
+    rows: function () { return store.get(DEMO_KEY) || []; },
+    save: function (rows) { store.set(DEMO_KEY, rows); },
+    pub: function (r) { return { name: r.name, first: r.first, second: r.second, third: r.third, defence: r.defence, submitted: r.submitted }; },
+    getStatus: function (device) {
+      const mine = Demo.rows().find(function (r) { return r.device === device; });
+      return { voted: !!mine, vote: mine ? Demo.pub(mine) : null };
+    },
+    submitVote: function (p) {
+      const picks = [p.first, p.second, p.third];
+      if (!String(p.name || '').trim()) return { ok: false, error: 'name' };
+      if (picks.some(function (id) { return !BY_ID[id]; }) || new Set(picks).size !== 3) return { ok: false, error: 'picks' };
+      const rows = Demo.rows();
+      const same = rows.find(function (r) { return r.submissionId === p.submissionId; });
+      if (same) return { ok: true, status: 'recorded', vote: Demo.pub(same) };
+      const i = rows.findIndex(function (r) { return r.device === p.device; });
+      if (i > -1 && !p.replace) return { ok: false, error: 'duplicate', vote: Demo.pub(rows[i]) };
+      const row = { name: p.name.trim(), first: p.first, second: p.second, third: p.third, defence: (p.defence || '').trim(), device: p.device, submissionId: p.submissionId, submitted: new Date().toISOString() };
+      if (i > -1) rows[i] = row; else rows.push(row);
+      Demo.save(rows);
+      return { ok: true, status: i > -1 ? 'replaced' : 'recorded', vote: Demo.pub(row) };
+    },
+    getResults: function (code) {
+      if (String(code || '').trim().toLowerCase() !== 'crisps') return { ok: false };
+      return { ok: true, expected: 23, votes: Demo.rows().map(Demo.pub) };
+    },
+    addSamples: function (n) {
+      const rows = Demo.rows();
+      const weights = [5, 3, 4, 2, 4, 3, 2, 1, 1, 5, 3];
+      const pool = [];
+      LINEUP.forEach(function (c, i) { for (let w = 0; w < weights[i]; w++) pool.push(c.id); });
+      for (let k = 0; k < n; k++) {
+        const picks = [];
+        while (picks.length < 3) { const id = pool[Math.floor(Math.random() * pool.length)]; if (picks.indexOf(id) < 0) picks.push(id); }
+        rows.push({ name: 'Sample judge ' + (rows.length + 1), first: picks[0], second: picks[1], third: picks[2], defence: k % 5 === 0 ? 'Sample defence: it survives the quiet-meeting test.' : '', device: 'sample-' + uid(), submissionId: uid(), submitted: new Date().toISOString() });
+      }
+      Demo.save(rows);
+    },
+    clear: function () { Demo.save([]); }
+  };
+
+  function call(fn, arg) {
+    return new Promise(function (resolve, reject) {
+      if (LIVE) google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)[fn](arg);
+      else setTimeout(function () { try { resolve(Demo[fn](arg)); } catch (e) { reject(e); } }, 250);
+    });
+  }
+
+  // ---- State ----
+  const draft = store.get('crisp-panel-draft') || {};
+  const state = {
+    picks: Object.assign({ first: null, second: null, third: null }, draft.picks || {}),
+    replace: false,
+    submitting: false,
+    pendingId: null,
+    lastVote: null
+  };
+  PLACES.forEach(function (p) { if (state.picks[p.key] && !BY_ID[state.picks[p.key]]) state.picks[p.key] = null; });
+
+  function saveDraft() {
+    store.set('crisp-panel-draft', { name: $('voter-name').value, defence: $('defence').value, picks: state.picks });
+  }
+  function announce(msg) { const el = $('live'); el.textContent = ''; setTimeout(function () { el.textContent = msg; }, 30); }
+  function placeOf(id) { const p = PLACES.find(function (p) { return state.picks[p.key] === id; }); return p || null; }
+
+  // ---- Views ----
+  const VIEWS = ['checking', 'form', 'recorded', 'results'];
+  function show(view, focusEl) {
+    VIEWS.forEach(function (v) { $('view-' + v).hidden = v !== view; });
+    const bar = view === 'form';
+    $('bar').hidden = !bar;
+    document.body.classList.toggle('has-bar', bar);
+    $('open-results').hidden = view === 'results';
+    if (focusEl) { focusEl.focus({ preventScroll: true }); }
+    window.scrollTo(0, 0);
+  }
+
+  // ---- Entries ----
+  function buildEntries() {
+    const list = $('entries');
+    LINEUP.forEach(function (c) {
+      const li = document.createElement('li');
+      li.className = 'entry';
+      li.dataset.id = c.id;
+
+      const head = document.createElement('div');
+      head.className = 'entry-head';
+      const lot = document.createElement('span');
+      lot.className = 'lot';
+      lot.textContent = 'No. ' + String(c.lot).padStart(2, '0');
+      const h3 = document.createElement('h3');
+      h3.id = 'crisp-' + c.id;
+      const b = document.createElement('span'); b.className = 'brand'; b.textContent = c.brand;
+      const f = document.createElement('span'); f.className = 'flavour'; f.textContent = c.flavour;
+      h3.append(b, f);
+      head.append(lot, h3);
+      if (c.flag || c.note) {
+        const flag = document.createElement('p');
+        flag.className = c.flag ? 'flag' : 'flag note';
+        flag.textContent = c.flag || c.note;
+        head.append(flag);
+      }
+      const tag = document.createElement('p');
+      tag.className = 'award-tag';
+      tag.hidden = true;
+      head.append(tag);
+      if (c.url) {
+        const link = document.createElement('a');
+        link.className = 'ingredients';
+        link.href = c.url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = 'Ingredients';
+        const sr = document.createElement('span');
+        sr.className = 'visually-hidden';
+        sr.textContent = ' for ' + c.full + ' (opens in a new tab)';
+        link.append(sr);
+        head.append(link);
+      }
+
+      const group = document.createElement('div');
+      group.className = 'medals';
+      group.setAttribute('role', 'group');
+      group.setAttribute('aria-labelledby', h3.id);
+      PLACES.forEach(function (p) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'medal';
+        btn.dataset.place = p.key;
+        btn.setAttribute('aria-pressed', 'false');
+        btn.textContent = p.label;
+        btn.addEventListener('click', function () { award(c.id, p.key); });
+        group.append(btn);
+      });
+
+      li.append(head, group);
+      list.append(li);
+    });
+  }
+
+  function award(id, key) {
+    const c = BY_ID[id];
+    const place = PLACES.find(function (p) { return p.key === key; });
+    if (state.picks[key] === id) {
+      state.picks[key] = null;
+      announce(place.label + ' place cleared.');
+    } else {
+      const displaced = state.picks[key];
+      PLACES.forEach(function (p) { if (state.picks[p.key] === id) state.picks[p.key] = null; });
+      state.picks[key] = id;
+      let msg = c.full + ' placed ' + place.label + '.';
+      if (displaced && displaced !== id) msg += ' ' + BY_ID[displaced].full + ' no longer has a medal.';
+      announce(msg);
+    }
+    $('picks-error').hidden = true;
+    $('dup-note').hidden = true;
+    render();
+    saveDraft();
+  }
+
+  function renderPodium(listEl, picks) {
+    listEl.textContent = '';
+    PLACES.forEach(function (p) {
+      const li = document.createElement('li');
+      const chip = document.createElement('span');
+      chip.className = 'place-chip';
+      chip.style.setProperty('--m', p.color);
+      chip.textContent = p.label;
+      const name = document.createElement('span');
+      const c = BY_ID[picks[p.key]];
+      name.className = c ? 'crisp-name' : 'empty';
+      name.textContent = c ? c.full : 'Not awarded yet';
+      li.append(chip, name);
+      listEl.append(li);
+    });
+  }
+
+  function render() {
+    document.querySelectorAll('.entry').forEach(function (li) {
+      const p = placeOf(li.dataset.id);
+      if (p) li.dataset.award = p.key; else delete li.dataset.award;
+      li.querySelectorAll('.medal').forEach(function (btn) {
+        btn.setAttribute('aria-pressed', String(!!p && p.key === btn.dataset.place));
+      });
+      const tag = li.querySelector('.award-tag');
+      tag.hidden = !p;
+      if (p) tag.textContent = p.medal + ' · ' + p.points + (p.points === 1 ? ' point' : ' points');
+    });
+    PLACES.forEach(function (p) {
+      const el = document.querySelector('[data-slot="' + p.key + '"]');
+      const c = BY_ID[state.picks[p.key]];
+      el.textContent = c ? c.brand : '–';
+      el.classList.toggle('empty', !c);
+      el.title = c ? c.full : '';
+    });
+    const done = PLACES.every(function (p) { return state.picks[p.key]; });
+    const barBtn = $('bar-btn');
+    barBtn.textContent = done ? 'Submit' : 'Review';
+    barBtn.classList.toggle('ready', done);
+    renderPodium($('verdict-podium'), state.picks);
+    $('replace-note').hidden = !state.replace;
+    $('submit-btn').textContent = state.submitting ? 'Submitting…' : (state.replace ? 'Replace my vote' : 'Submit vote');
+    $('submit-btn').disabled = state.submitting;
+  }
+
+  // ---- Submit ----
+  function submit(replace) {
+    if (state.submitting) return;
+    const name = $('voter-name').value.trim();
+    const nameField = $('name-field');
+    $('submit-error').hidden = true;
+    if (!name) {
+      nameField.setAttribute('data-invalid', '');
+      $('voter-name').setAttribute('aria-invalid', 'true');
+      $('name-error').hidden = false;
+      $('voter-name').focus();
+      return;
+    }
+    if (!PLACES.every(function (p) { return state.picks[p.key]; })) {
+      $('picks-error').hidden = false;
+      $('verdict').focus();
+      announce('Award all three medals before you submit.');
+      return;
+    }
+    if (!state.pendingId) state.pendingId = uid();
+    state.submitting = true;
+    render();
+    call('submitVote', {
+      name: name,
+      first: state.picks.first, second: state.picks.second, third: state.picks.third,
+      defence: $('defence').value.trim(),
+      device: deviceId,
+      submissionId: state.pendingId,
+      replace: !!(replace || state.replace)
+    }).then(function (res) {
+      state.submitting = false;
+      if (res && res.ok) {
+        state.pendingId = null;
+        state.replace = false;
+        render();
+        showRecorded(res.vote, res.status === 'replaced' ? 'replaced' : 'new');
+      } else if (res && res.error === 'duplicate') {
+        render();
+        state.lastVote = res.vote;
+        $('dup-text').textContent = 'At ' + when(res.vote.submitted) + ' you gave gold to ' + nameOf(res.vote.first) + '. You can replace that vote with this one, or keep it.';
+        $('dup-note').hidden = false;
+        $('dup-replace').focus();
+      } else {
+        render();
+        $('submit-error').textContent = res && res.error === 'name'
+          ? 'Add your name so the organiser can count your vote.'
+          : 'Something about this vote didn’t add up. Check you’ve awarded three different crisps and try again.';
+        $('submit-error').hidden = false;
+      }
+    }).catch(function () {
+      state.submitting = false;
+      render();
+      $('submit-error').textContent = 'Your vote didn’t reach the panel. Check your connection and submit again – your picks are still here and won’t be counted twice.';
+      $('submit-error').hidden = false;
+    });
+  }
+
+  function nameOf(id) { return BY_ID[id] ? BY_ID[id].full : 'an unknown crisp'; }
+  function when(iso) {
+    const d = new Date(iso);
+    if (isNaN(d)) return 'an earlier time';
+    return d.toLocaleString('en-GB', { weekday: 'short', hour: '2-digit', minute: '2-digit' });
+  }
+
+  function showRecorded(vote, mode) {
+    state.lastVote = vote;
+    $('recorded-eyebrow').textContent = mode === 'replaced' ? 'Vote replaced' : mode === 'existing' ? 'Already voted' : 'Vote recorded';
+    const first = (vote.name || '').split(' ')[0];
+    $('recorded-title').textContent = mode === 'existing'
+      ? 'You’ve already voted' + (first ? ', ' + first : '')
+      : 'Thanks' + (first ? ', ' + first : '') + '. The panel has your verdict';
+    $('recorded-meta').textContent = (mode === 'replaced' ? 'Replaced at ' : 'Recorded at ') + when(vote.submitted) + '. One vote per person – this is the one that counts.';
+    renderPodium($('recorded-podium'), vote);
+    show('recorded', $('view-recorded'));
+    announce($('recorded-eyebrow').textContent + '.');
+  }
+
+  // ---- Results ----
+  function ordinal(n) {
+    const s = ['th', 'st', 'nd', 'rd'], v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  }
+
+  function tally(votes) {
+    const t = new Map(LINEUP.map(function (c) { return [c.id, { crisp: c, points: 0, first: 0, second: 0, third: 0 }]; }));
+    votes.forEach(function (v) {
+      PLACES.forEach(function (p) { const e = t.get(v[p.key]); if (e) { e.points += p.points; e[p.key] += 1; } });
+    });
+    const list = Array.from(t.values()).sort(function (a, b) {
+      return b.points - a.points || b.first - a.first || b.second - a.second || a.crisp.lot - b.crisp.lot;
+    });
+    list.forEach(function (e, i) {
+      e.rank = i > 0 && e.points === list[i - 1].points ? list[i - 1].rank : i + 1;
+      e.mentions = e.first + e.second + e.third;
+    });
+    list.forEach(function (e) { e.tied = e.points > 0 && list.filter(function (o) { return o.points === e.points; }).length > 1; });
+    return list;
+  }
+
+  function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
+
+  function renderResults(res) {
+    const votes = res.votes || [];
+    const list = tally(votes);
+    const expected = res.expected || 23;
+    $('default-code-note').hidden = !res.defaultCode;
+    $('vote-count').textContent = votes.length;
+    $('vote-expected').textContent = expected;
+    $('vote-meter').style.width = Math.min(100, Math.round(votes.length / expected * 100)) + '%';
+    $('refreshed').textContent = 'Updated ' + new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+
+    // Podium: ranks 1–3, ties grouped
+    const top = $('top3');
+    top.textContent = '';
+    const colors = { 1: 'var(--gold)', 2: 'var(--silver)', 3: 'var(--bronze)' };
+    [1, 2, 3].forEach(function (r) {
+      const group = list.filter(function (e) { return e.rank === r && e.points > 0; });
+      if (!group.length) return;
+      const card = document.createElement('div');
+      card.className = 'top-card';
+      card.style.setProperty('--m', colors[r]);
+      const chip = document.createElement('span');
+      chip.className = 'place-chip';
+      chip.style.setProperty('--m', colors[r]);
+      chip.textContent = (group.length > 1 ? 'Joint ' : '') + ordinal(r);
+      const names = document.createElement('div');
+      names.className = 'names';
+      group.forEach(function (e) {
+        const n = document.createElement('span');
+        n.textContent = e.crisp.full;
+        names.append(n);
+      });
+      const sub = document.createElement('small');
+      sub.textContent = group.length > 1
+        ? 'Tied on points'
+        : plural(group[0].first, 'gold', 'golds') + ', ' + plural(group[0].second, 'silver', 'silvers') + ', ' + plural(group[0].third, 'bronze', 'bronzes');
+      names.append(sub);
+      const pts = document.createElement('div');
+      pts.className = 'pts';
+      pts.textContent = group[0].points;
+      const ps = document.createElement('small'); ps.textContent = 'POINTS';
+      pts.append(ps);
+      card.append(chip, names, pts);
+      top.append(card);
+    });
+    if (!top.children.length) {
+      const p = document.createElement('p');
+      p.className = 'hint';
+      p.textContent = 'No votes yet. The podium appears here as votes come in.';
+      top.append(p);
+    }
+
+    // Full ranking, bars to one scale
+    const max = Math.max(1, list[0] ? list[0].points : 1);
+    const ol = $('ranking');
+    ol.textContent = '';
+    list.forEach(function (e) {
+      const li = document.createElement('li');
+      const rank = document.createElement('span');
+      rank.className = 'rank';
+      rank.textContent = e.points ? (e.tied ? '=' : '') + ordinal(e.rank) : '–';
+      const name = document.createElement('span');
+      name.className = 'r-name';
+      name.textContent = e.crisp.full;
+      if (e.tied) {
+        const tie = document.createElement('span');
+        tie.className = 'tie';
+        tie.textContent = 'Tie';
+        name.append(tie);
+      }
+      const pts = document.createElement('span');
+      pts.className = 'r-pts';
+      pts.textContent = plural(e.points, 'pt', 'pts');
+      const detail = document.createElement('span');
+      detail.className = 'r-detail';
+      detail.textContent = e.mentions
+        ? plural(e.mentions, 'vote', 'votes') + ' · ' + e.first + ' gold, ' + e.second + ' silver, ' + e.third + ' bronze'
+        : 'No votes';
+      const bar = document.createElement('span');
+      bar.className = 'r-bar';
+      bar.setAttribute('aria-hidden', 'true');
+      const fill = document.createElement('span');
+      fill.style.width = (e.points / max * 100) + '%';
+      bar.append(fill);
+      li.append(rank, name, pts, bar, detail);
+      ol.append(li);
+    });
+
+    // Defences
+    const defs = votes.filter(function (v) { return v.defence; });
+    $('defences-section').hidden = !defs.length;
+    const ul = $('defences');
+    ul.textContent = '';
+    defs.forEach(function (v) {
+      const li = document.createElement('li');
+      const q = document.createElement('p');
+      q.textContent = v.defence;
+      const who = document.createElement('p');
+      who.className = 'who';
+      who.textContent = '– ' + v.name;
+      li.append(q, who);
+      ul.append(li);
+    });
+
+    const names = votes.map(function (v) { return v.name; }).sort(function (a, b) { return a.localeCompare(b, 'en-GB'); });
+    $('voters').textContent = names.length ? 'Voted so far: ' + names.join(', ') + '.' : '';
+    $('demo-tools').hidden = LIVE;
+    $('results-body').hidden = false;
+  }
+
+  function loadResults(code, quiet) {
+    $('code-btn').disabled = true;
+    $('refresh').disabled = true;
+    return call('getResults', code).then(function (res) {
+      $('code-btn').disabled = false;
+      $('refresh').disabled = false;
+      if (!res || !res.ok) {
+        $('code-error').hidden = false;
+        $('results-body').hidden = true;
+        $('code-form').hidden = false;
+        if (!quiet) $('organiser-code').focus();
+        return;
+      }
+      store.set('crisp-panel-code', code, true);
+      $('code-error').hidden = true;
+      $('code-form').hidden = true;
+      renderResults(res);
+      if (!quiet) announce(res.votes.length + ' votes counted.');
+    }).catch(function () {
+      $('code-btn').disabled = false;
+      $('refresh').disabled = false;
+      $('code-error').textContent = 'Couldn’t load the results. Check your connection and try again.';
+      $('code-error').hidden = false;
+    });
+  }
+
+  function openResults() {
+    show('results', $('view-results'));
+    const saved = store.get('crisp-panel-code', true);
+    if (saved) loadResults(saved, true);
+    else { $('code-form').hidden = false; $('results-body').hidden = true; $('organiser-code').focus(); }
+  }
+
+  // ---- Wire up ----
+  buildEntries();
+  $('voter-name').value = draft.name || '';
+  $('defence').value = draft.defence || '';
+  $('preview').hidden = LIVE;
+  render();
+
+  $('voter-name').addEventListener('input', function () {
+    $('name-field').removeAttribute('data-invalid');
+    $('voter-name').removeAttribute('aria-invalid');
+    $('name-error').hidden = true;
+    saveDraft();
+  });
+  $('defence').addEventListener('input', saveDraft);
+  $('view-form').addEventListener('submit', function (e) { e.preventDefault(); submit(false); });
+  $('bar-btn').addEventListener('click', function () {
+    $('verdict').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+    $('verdict').focus({ preventScroll: true });
+  });
+  $('dup-replace').addEventListener('click', function () { $('dup-note').hidden = true; state.replace = true; submit(true); });
+  $('dup-keep').addEventListener('click', function () { $('dup-note').hidden = true; state.pendingId = null; showRecorded(state.lastVote, 'existing'); });
+  $('change-vote').addEventListener('click', function () {
+    const v = state.lastVote || {};
+    PLACES.forEach(function (p) { state.picks[p.key] = BY_ID[v[p.key]] ? v[p.key] : null; });
+    if (v.name) $('voter-name').value = v.name;
+    if (v.defence != null) $('defence').value = v.defence;
+    state.replace = true;
+    render();
+    saveDraft();
+    show('form', $('voter-name'));
+  });
+  $('open-results').addEventListener('click', openResults);
+  $('back-to-vote').addEventListener('click', boot);
+  $('code-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    $('code-error').textContent = 'That code isn’t right. Check with whoever set up the panel.';
+    loadResults($('organiser-code').value);
+  });
+  $('refresh').addEventListener('click', function () { loadResults(store.get('crisp-panel-code', true) || $('organiser-code').value); });
+  $('demo-add').addEventListener('click', function () { Demo.addSamples(15); loadResults('crisps', true); });
+  $('demo-clear').addEventListener('click', function () { Demo.clear(); loadResults('crisps', true); });
+
+  function boot() {
+    show('checking');
+    call('getStatus', deviceId).then(function (res) {
+      if (res && res.voted && !state.replace) showRecorded(res.vote, 'existing');
+      else show('form');
+    }).catch(function () { show('form'); });
+  }
+  boot();
+})();
+</script>
+</body>
+</html>

@@ -85,8 +85,9 @@ p { margin: 0; }
 }
 
 /* Hero: the packet */
-.hero { background: var(--red); color: var(--on-red); position: relative; }
-.hero-inner { max-width: calc(42rem + 32px); margin: 0 auto; padding-block: 24px 28px; display: grid; gap: 20px; }
+.hero { background: var(--red); color: var(--on-red); position: relative; overflow: hidden; }
+.crisp-fall { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+.hero-inner { max-width: calc(42rem + 32px); margin: 0 auto; padding-block: 24px 60px; display: grid; gap: 20px; position: relative; z-index: 1; }
 .preview {
   border: 1.5px dashed rgba(255, 255, 255, 0.7);
   border-radius: 12px;
@@ -116,6 +117,7 @@ p { margin: 0; }
   background: var(--paper);
   clip-path: polygon(0% 100%, 0.0% 37.7%, 1.67% 25.6%, 3.33% 60.6%, 5.0% 20.1%, 6.67% 52.5%, 8.33% 40.6%, 10.0% 19.1%, 11.67% 50.5%, 13.33% 17.6%, 15.0% 45.4%, 16.67% 19.9%, 18.33% 21.3%, 20.0% 44.7%, 21.67% 72.9%, 23.33% 23.7%, 25.0% 30.6%, 26.67% 58.9%, 28.33% 81.3%, 30.0% 55.4%, 31.67% 42.8%, 33.33% 83.3%, 35.0% 18.3%, 36.67% 75.1%, 38.33% 35.3%, 40.0% 25.1%, 41.67% 23.2%, 43.33% 36.6%, 45.0% 72.1%, 46.67% 27.7%, 48.33% 55.7%, 50.0% 59.7%, 51.67% 41.1%, 53.33% 53.3%, 55.0% 19.4%, 56.67% 19.2%, 58.33% 29.4%, 60.0% 62.6%, 61.67% 44.9%, 63.33% 37.0%, 65.0% 56.0%, 66.67% 46.7%, 68.33% 36.0%, 70.0% 70.6%, 71.67% 63.9%, 73.33% 32.1%, 75.0% 55.2%, 76.67% 51.8%, 78.33% 76.3%, 80.0% 66.1%, 81.67% 35.2%, 83.33% 83.6%, 85.0% 23.3%, 86.67% 44.3%, 88.33% 68.0%, 90.0% 25.6%, 91.67% 49.2%, 93.33% 17.7%, 95.0% 61.8%, 96.67% 68.5%, 98.33% 55.1%, 100.0% 76.3%, 100% 100%);
   position: relative;
+  z-index: 2;
   top: 1px;
 }
 
@@ -1102,6 +1104,162 @@ textarea { min-height: 110px; resize: vertical; }
     }).catch(function () { show('form'); });
   }
   boot();
+})();
+</script>
+<script>
+/* Crisp fall: crisps drift down the red header and pile up along the torn edge, a little at a time,
+   like coins in a savings challenge. Decorative only. */
+(function () {
+  'use strict';
+  const hero = document.querySelector('.hero');
+  if (!hero || !window.HTMLCanvasElement) return;
+  const canvas = document.createElement('canvas');
+  canvas.className = 'crisp-fall';
+  canvas.setAttribute('aria-hidden', 'true');
+  hero.prepend(canvas);
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const COL = 4;            // pile resolution in px
+  const MAX_PILE = 44;      // the pile stops growing at this height
+  const GROUND_INSET = 14;  // the pile sits partly behind the torn paper edge
+  const SPAWN_EVERY = 0.9;  // seconds between new crisps
+  let W = 0, H = 0, dpr = 1, heights, pile, pileCtx, falling = [], spawnClock = 0, last = 0, raf = 0, full = false;
+
+  // A handful of crisp sprites, drawn once
+  const sprites = [];
+  function makeSprite(seed) {
+    const rnd = (function (a) { return function () { a = (a * 16807) % 2147483647; return a / 2147483647; }; })(seed * 7919 + 13);
+    const rx = 13 + rnd() * 8, ry = rx * (0.62 + rnd() * 0.2);
+    const pad = 6, w = Math.ceil(rx * 2 + pad * 2), h = Math.ceil(ry * 2 + pad * 2);
+    const c = document.createElement('canvas'); c.width = w * 2; c.height = h * 2;
+    const g = c.getContext('2d'); g.scale(2, 2); g.translate(w / 2, h / 2);
+    const p1 = rnd() * 6.28, p2 = rnd() * 6.28;
+    g.beginPath();
+    for (let i = 0; i <= 48; i++) {
+      const t = i / 48 * Math.PI * 2;
+      const k = 1 + 0.09 * Math.sin(3 * t + p1) + 0.06 * Math.sin(5 * t + p2);
+      const x = Math.cos(t) * rx * k, y = Math.sin(t) * ry * k;
+      i ? g.lineTo(x, y) : g.moveTo(x, y);
+    }
+    g.closePath();
+    const grad = g.createRadialGradient(-rx * 0.25, -ry * 0.3, 1, 0, 0, rx * 1.1);
+    grad.addColorStop(0, '#FFE58A'); grad.addColorStop(0.6, '#F6C744'); grad.addColorStop(1, '#D9962B');
+    g.fillStyle = grad; g.fill();
+    g.lineWidth = 1.2; g.strokeStyle = 'rgba(120, 60, 0, 0.35)'; g.stroke();
+    g.fillStyle = 'rgba(190, 110, 20, 0.35)';
+    for (let i = 0; i < 4; i++) {
+      g.beginPath();
+      g.ellipse((rnd() - 0.5) * rx * 1.1, (rnd() - 0.5) * ry * 1.1, 1.2 + rnd() * 1.6, 0.9 + rnd(), rnd() * 3, 0, Math.PI * 2);
+      g.fill();
+    }
+    return { img: c, w: w, h: h, rx: rx, ry: ry };
+  }
+  for (let i = 0; i < 7; i++) sprites.push(makeSprite(i + 1));
+
+  function ground(x0, x1) {
+    let m = 0;
+    for (let c = Math.max(0, Math.floor(x0 / COL)); c <= Math.min(heights.length - 1, Math.floor(x1 / COL)); c++) m = Math.max(m, heights[c]);
+    return m;
+  }
+
+  function settle(cr) {
+    const half = cr.s.rx * cr.scale * 0.85;
+    const top = ground(cr.x - half, cr.x + half);
+    const y = H - GROUND_INSET - top - cr.s.ry * cr.scale * 0.35;
+    pileCtx.save();
+    pileCtx.translate(cr.x, y);
+    pileCtx.rotate(cr.rot * 0.25);          // pieces land fairly flat
+    pileCtx.scale(cr.scale, cr.scale * 0.8);
+    pileCtx.drawImage(cr.s.img, -cr.s.w / 2, -cr.s.h / 2, cr.s.w, cr.s.h);
+    pileCtx.restore();
+    const add = cr.s.ry * cr.scale * 0.45;
+    for (let c = Math.max(0, Math.floor((cr.x - half) / COL)); c <= Math.min(heights.length - 1, Math.floor((cr.x + half) / COL)); c++) {
+      heights[c] = Math.min(MAX_PILE, Math.max(heights[c], top + add * (1 - Math.abs((c * COL - cr.x) / half) * 0.5)));
+    }
+    let sum = 0; for (let c = 0; c < heights.length; c++) sum += heights[c];
+    full = sum / heights.length > MAX_PILE * 0.82;
+  }
+
+  function newCrisp(yStart) {
+    return {
+      s: sprites[Math.floor(Math.random() * sprites.length)],
+      x: Math.random() * W,
+      y: yStart,
+      vy: 26 + Math.random() * 22,
+      sway: 10 + Math.random() * 18,
+      phase: Math.random() * 6.28,
+      rot: Math.random() * 6.28,
+      spin: (Math.random() - 0.5) * 1.6,
+      scale: 0.75 + Math.random() * 0.5
+    };
+  }
+
+  function resize() {
+    const w = hero.clientWidth, h = hero.clientHeight;
+    if (!w || !h || (w === W && h === H)) return;
+    W = w; H = h; dpr = Math.min(2, window.devicePixelRatio || 1);
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    pile = document.createElement('canvas'); pile.width = canvas.width; pile.height = canvas.height;
+    pileCtx = pile.getContext('2d'); pileCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    heights = new Float32Array(Math.ceil(W / COL) + 1);
+    falling = []; full = false;
+    if (reduce.matches) { staticPile(); return; }
+    // start with a small pile so the effect reads straight away
+    for (let i = 0; i < Math.round(W / 40); i++) settle(newCrisp(0));
+    draw();
+    start();
+  }
+
+  function staticPile() {
+    let guard = 0;
+    while (!full && guard++ < 600) settle(newCrisp(0));
+    ctx.clearRect(0, 0, W, H);
+    ctx.drawImage(pile, 0, 0, W, H);
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.drawImage(pile, 0, 0, W, H);
+    ctx.globalAlpha = 0.85;
+    for (const cr of falling) {
+      ctx.save();
+      ctx.translate(cr.x + Math.sin(cr.phase) * cr.sway, cr.y);
+      ctx.rotate(cr.rot);
+      ctx.scale(cr.scale, cr.scale * (0.55 + 0.45 * Math.abs(Math.cos(cr.phase * 0.7))));  // tumbling
+      ctx.drawImage(cr.s.img, -cr.s.w / 2, -cr.s.h / 2, cr.s.w, cr.s.h);
+      ctx.restore();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function tick(now) {
+    raf = 0;
+    const dt = Math.min(0.05, (now - (last || now)) / 1000);
+    last = now;
+    if (!full) {
+      spawnClock += dt;
+      if (spawnClock >= SPAWN_EVERY && falling.length < 14) { spawnClock = 0; falling.push(newCrisp(-24)); }
+    }
+    for (let i = falling.length - 1; i >= 0; i--) {
+      const cr = falling[i];
+      cr.y += cr.vy * dt; cr.phase += dt * 1.3; cr.rot += cr.spin * dt;
+      const sx = cr.x + Math.sin(cr.phase) * cr.sway;
+      const land = H - GROUND_INSET - ground(sx - 6, sx + 6) - cr.s.ry * cr.scale * 0.3;
+      if (cr.y >= land) { cr.x = Math.max(0, Math.min(W, sx)); settle(cr); falling.splice(i, 1); }
+    }
+    draw();
+    if (!full || falling.length) start();
+  }
+
+  function start() { if (!raf && !document.hidden) { last = 0; raf = requestAnimationFrame(tick); } }
+
+  document.addEventListener('visibilitychange', function () { if (!document.hidden && (!full || falling.length)) start(); });
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(hero);
+  else window.addEventListener('resize', resize);
+  resize();
 })();
 </script>
 </body>

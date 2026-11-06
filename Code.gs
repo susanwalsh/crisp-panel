@@ -4,8 +4,8 @@
  * Votes land in a "Votes" tab. Results are only returned with the organiser code.
  */
 
-// Change this before you share the link. Case doesn't matter.
-const ORGANISER_CODE = 'change-me';
+// The organiser code lives in Apps Script, not in this file, so it never ends up on GitHub.
+// Set it in Project Settings → Script Properties → Add script property: ORGANISER_CODE. Case doesn't matter.
 const EXPECTED_PANEL = 23;
 
 const SHEET_NAME = 'Votes';
@@ -70,16 +70,17 @@ function submitVote(p) {
 }
 
 function getResults(code) {
-  if (String(code || '').trim().toLowerCase() !== ORGANISER_CODE.toLowerCase()) {
+  const expected = organiserCode_();
+  if (!expected) return { ok: false, error: 'no-code' };
+  if (String(code || '').trim().toLowerCase() !== expected.toLowerCase()) {
     Utilities.sleep(1000); // slows down guessing
     return { ok: false };
   }
-  return {
-    ok: true,
-    expected: EXPECTED_PANEL,
-    defaultCode: ORGANISER_CODE === 'change-me',
-    votes: rows_().map(public_)
-  };
+  return { ok: true, expected: EXPECTED_PANEL, votes: rows_().map(public_) };
+}
+
+function organiserCode_() {
+  return String(PropertiesService.getScriptProperties().getProperty('ORGANISER_CODE') || '').trim();
 }
 
 // ---------------------------------------------------------------------------

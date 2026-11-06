@@ -15,21 +15,24 @@ Open `Index.html` in a browser. It runs in **preview mode**: votes are saved on 
 1. **Create the sheet.** Go to sheets.new, then name the sheet *The Crisp Panel votes*.
 2. **Open Apps Script.** In the sheet, go to **Extensions → Apps Script**.
 3. **Add the server code.** Replace everything in `Code.gs` with the contents of this folder's `Code.gs`.
-   - Change `ORGANISER_CODE` from `'change-me'` to your own code.
-   - Voters can't see this file.
-4. **Add the page.**
+4. **Set the organiser code.** In Apps Script, click **Project Settings** (the cog), scroll to **Script Properties**, choose **Add script property**, and enter:
+   - Property: `ORGANISER_CODE`
+   - Value: your code (case doesn't matter)
+   - Click **Save script properties**. To change the code later, edit this value. There's no need to redeploy.
+   - The code never appears in the files or on GitHub, and voters can't see it.
+5. **Add the page.**
    - Click **+ → HTML** and name the file `Index`. Apps Script adds `.html` itself.
    - Replace everything in it with this folder's `Index.html`.
    - Save with ⌘S.
-5. **Deploy.** Go to **Deploy → New deployment**, click the cog and choose **Web app**, then set:
+6. **Deploy.** Go to **Deploy → New deployment**, click the cog and choose **Web app**, then set:
    - **Execute as:** Me
    - **Who has access:** Anyone within Monzo (your Workspace domain)
    - Click **Deploy** and approve the permissions. Google will warn that the app is unverified, because it's your own script: choose *Advanced → Go to project*.
-6. **Test it.**
+7. **Test it.**
    - Open the web app URL, submit a vote, and check that it appears in the new **Votes** tab of the sheet.
    - Open **Organiser: view results** at the bottom of the page and enter your code.
-7. **Clear your test votes.** In the Votes tab, delete every row below the header.
-8. **Share the link.** Post the web app URL in Slack, or turn it into a QR code for the table.
+8. **Clear your test votes.** In the Votes tab, delete every row below the header.
+9. **Share the link.** Post the web app URL in Slack, or turn it into a QR code for the table.
 
 ## How it handles duplicates
 

@@ -490,7 +490,6 @@ textarea { min-height: 110px; resize: vertical; }
     </form>
 
     <div id="results-body" class="section" hidden>
-      <div class="notice warn" id="default-code-note" hidden><p>The organiser code is still the default. Change <code>ORGANISER_CODE</code> in Code.gs and redeploy before you share the link.</p></div>
       <div class="stats">
         <p><strong id="vote-count">0</strong> of <span id="vote-expected">23</span> judges have voted</p>
         <div class="meter" aria-hidden="true"><span id="vote-meter" style="width:0%"></span></div>
@@ -890,7 +889,6 @@ textarea { min-height: 110px; resize: vertical; }
     const votes = res.votes || [];
     const list = tally(votes);
     const expected = res.expected || 23;
-    $('default-code-note').hidden = !res.defaultCode;
     $('vote-count').textContent = votes.length;
     $('vote-expected').textContent = expected;
     $('vote-meter').style.width = Math.min(100, Math.round(votes.length / expected * 100)) + '%';
@@ -1002,6 +1000,9 @@ textarea { min-height: 110px; resize: vertical; }
       $('code-btn').disabled = false;
       $('refresh').disabled = false;
       if (!res || !res.ok) {
+        if (res && res.error === 'no-code') {
+          $('code-error').textContent = 'No organiser code has been set yet. In Apps Script, add ORGANISER_CODE under Project Settings → Script Properties.';
+        }
         $('code-error').hidden = false;
         $('results-body').hidden = true;
         $('code-form').hidden = false;

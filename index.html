@@ -576,7 +576,12 @@ textarea { min-height: 110px; resize: vertical; }
   if (!deviceId) { deviceId = uid(); store.set('crisp-panel-device', deviceId); }
 
   // ---- Backend: Apps Script when published, local preview otherwise ----
-  const LIVE = !!(window.google && google.script && google.script.run);
+  // To run from GitHub Pages (or any other host), paste your Apps Script web app URL here.
+  // It ends in /exec. Leave it empty and the page runs in preview mode.
+  const API_URL = '';
+
+  const IN_APPS_SCRIPT = !!(window.google && google.script && google.script.run);
+  const LIVE = IN_APPS_SCRIPT || !!API_URL;
 
   const DEMO_KEY = 'crisp-panel-preview-votes';
   const Demo = {
@@ -622,7 +627,13 @@ textarea { min-height: 110px; resize: vertical; }
 
   function call(fn, arg) {
     return new Promise(function (resolve, reject) {
-      if (LIVE) google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)[fn](arg);
+      if (IN_APPS_SCRIPT) google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)[fn](arg);
+      else if (API_URL) {
+        // text/plain keeps this a simple request, which Apps Script accepts from other sites
+        fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: fn, arg: arg }) })
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(resolve, reject);
+      }
       else setTimeout(function () { try { resolve(Demo[fn](arg)); } catch (e) { reject(e); } }, 250);
     });
   }

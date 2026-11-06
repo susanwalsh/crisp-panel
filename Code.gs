@@ -18,9 +18,19 @@ const VALID_IDS = [
 ];
 
 function doGet() {
-  return HtmlService.createHtmlOutputFromFile('Index')
+  return HtmlService.createHtmlOutputFromFile('index')
     .setTitle('The Crisp Panel')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1, viewport-fit=cover');
+}
+
+/** The page on GitHub Pages sends { action, arg } here and gets JSON back. */
+function doPost(e) {
+  let body = {};
+  try { body = JSON.parse(e.postData.contents); } catch (err) { /* bad request */ }
+  const actions = { getStatus: getStatus, submitVote: submitVote, getResults: getResults };
+  const fn = actions[body.action];
+  const out = fn ? fn(body.arg) : { ok: false, error: 'unknown' };
+  return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
 }
 
 /** Has this person (by work email, or by device if no email is available) already voted? */
